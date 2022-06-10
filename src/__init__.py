@@ -27,18 +27,27 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
 
         def export_task() -> int:
             exporter = MediaExporter(mw.col, did)
-            i = 0
-            for _ in exporter.export(folder, exts):
-                if i % 50 == 0:
-                    mw.taskman.run_on_main(lambda i=i: update_progress(i))
+            note_count = mw.col.decks.card_count([did], include_subdecks=True)
+            progress_step = min(2500, max(2500, note_count))
+            media_i = 0
+            for notes_i, (media_i, _) in enumerate(exporter.export(folder, exts)):
+                if notes_i % progress_step == 0:
+                    mw.taskman.run_on_main(
+                        lambda notes_i=notes_i + 1, media_i=media_i: update_progress(
+                            notes_i, note_count, media_i
+                        )
+                    )
                     if want_cancel:
                         break
-                i += 1
-            return i
+            return media_i
 
-        def update_progress(i: int):
+        def update_progress(notes_i: int, note_count: int, media_i: int):
             nonlocal want_cancel
-            mw.progress.update(label=f"Exported {i+1} files")
+            mw.progress.update(
+                label=f"Processed {notes_i} notes and exported {media_i} files",
+                max=note_count,
+                value=notes_i,
+            )
             want_cancel = mw.progress.want_cancel()
 
         def on_done(future: Future):
