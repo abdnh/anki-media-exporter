@@ -1,0 +1,15 @@
+[MASTER]
+extension-pkg-whitelist=PyQt6,PyQt5
+
+
+[REPORTS]
+output-format=colorized
+
+[MESSAGES CONTROL]
+disable=
+  line-too-long,
+
+[BASIC]
+good-names =
+  i,
+  mw,

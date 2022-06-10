@@ -1,0 +1,4 @@
+venv/
+*.ankiaddon
+__pycache__/
+.mypy_cache/
