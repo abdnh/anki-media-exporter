@@ -44,6 +44,8 @@ class MediaExporter:
             if exts is not None and os.path.splitext(filename)[1][1:] not in exts:
                 continue
             src_path = os.path.join(media_dir, filename)
+            if not os.path.exists(src_path):
+                continue
             dest_path = os.path.join(folder, filename)
             shutil.copyfile(src_path, dest_path)
             yield filename
