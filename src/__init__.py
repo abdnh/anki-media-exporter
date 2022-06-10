@@ -26,7 +26,7 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
         exts = set(editor.audio) if CONFIG.get("audio_only", False) else None
 
         def export_task() -> int:
-            exporter = MediaExporter(mw, did)
+            exporter = MediaExporter(mw.col, did)
             i = 0
             for _ in exporter.export(folder, exts):
                 if i % 50 == 0:

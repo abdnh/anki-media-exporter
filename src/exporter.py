@@ -7,26 +7,26 @@ import shutil
 from pathlib import Path
 from typing import Generator, Optional, Set
 
+from anki.collection import Collection
 from anki.decks import DeckId
 from anki.utils import ids2str
-from aqt.main import AnkiQt
 
 
 class MediaExporter:
     "Deck Media Exporter"
 
-    def __init__(self, mw: AnkiQt, did: DeckId | int):
-        self.mw = mw
+    def __init__(self, col: Collection, did: DeckId | int):
+        self.col = col
         self.did = did
 
     def get_filenames(self) -> Set[str]:
         "Get media filenames used in the deck that has the ID `self.did`"
         filenames = set()
-        dids = self.mw.col.decks.deck_and_child_ids(self.did)
-        for flds, mid in self.mw.col.db.all(
+        dids = self.col.decks.deck_and_child_ids(self.did)
+        for flds, mid in self.col.db.all(
             f"select n.flds, n.mid from notes n, cards c where c.nid = n.id and c.did in {ids2str(dids)}"
         ):
-            filenames.update(self.mw.col.media.filesInStr(mid, flds))
+            filenames.update(self.col.media.filesInStr(mid, flds))
         return filenames
 
     def export(
@@ -37,7 +37,7 @@ class MediaExporter:
         including only files that has extensions in `exts` if `exts` is not None.
         """
 
-        media_dir = self.mw.col.media.dir()
+        media_dir = self.col.media.dir()
         filenames = self.get_filenames()
         for filename in filenames:
             if exts is not None and os.path.splitext(filename)[1][1:] not in exts:
