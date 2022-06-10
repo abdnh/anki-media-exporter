@@ -12,7 +12,6 @@ from aqt.utils import tooltip
 from .exporter import MediaExporter
 
 ADDON_NAME = "Media Exporter"
-CONFIG = mw.addonManager.getConfig(__name__)
 
 
 def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
@@ -23,8 +22,9 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
             mw, caption="Choose the folder where you want to export the files to"
         )
 
-        exts = set(editor.audio) if CONFIG.get("audio_only", False) else None
-        field = CONFIG.get("search_in_field", None)
+        config = mw.addonManager.getConfig(__name__)
+        exts = set(editor.audio) if config.get("audio_only", False) else None
+        field = config.get("search_in_field", None)
         want_cancel = False
 
         def export_task() -> int:
