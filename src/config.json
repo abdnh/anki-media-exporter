@@ -1,3 +1,4 @@
 {
-    "audio_only": true
+    "audio_only": true,
+    "search_in_field": ""
 }

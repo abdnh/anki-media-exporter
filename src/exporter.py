@@ -14,18 +14,23 @@ from anki.decks import DeckId
 class MediaExporter:
     "Deck Media Exporter"
 
-    def __init__(self, col: Collection, did: DeckId | int):
+    def __init__(self, col: Collection, did: DeckId | int, field: Optional[str] = None):
         self.col = col
         self.did = did
+        self.field = field
 
     def file_lists(self) -> Generator[List[str], None, None]:
         "Return a generator that yields a list of media files for each note in the deck with the ID `self.did`"
-        search = self.col.build_search_string(
-            SearchNode(deck=self.col.decks.name(self.did))
-        )
+        search_params = [SearchNode(deck=self.col.decks.name(self.did))]
+        if self.field:
+            search_params.append(SearchNode(field_name=self.field))
+        search = self.col.build_search_string(*search_params)
         for nid in self.col.find_notes(search):
             note = self.col.get_note(nid)
-            flds = "".join(note.fields)
+            if self.field:
+                flds = note[self.field]
+            else:
+                flds = "".join(note.fields)
             yield self.col.media.filesInStr(note.mid, flds)
 
     def export(

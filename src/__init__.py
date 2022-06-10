@@ -22,11 +22,13 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
         folder = QFileDialog.getExistingDirectory(
             mw, caption="Choose the folder where you want to export the files to"
         )
-        want_cancel = False
+
         exts = set(editor.audio) if CONFIG.get("audio_only", False) else None
+        field = CONFIG.get("search_in_field", None)
+        want_cancel = False
 
         def export_task() -> int:
-            exporter = MediaExporter(mw.col, did)
+            exporter = MediaExporter(mw.col, did, field)
             note_count = mw.col.decks.card_count([did], include_subdecks=True)
             progress_step = min(2500, max(2500, note_count))
             media_i = 0
