@@ -35,6 +35,7 @@ class MediaExporter:
         """
         Export media files in `self.did` to `folder`,
         including only files that has extensions in `exts` if `exts` is not None.
+        Returns a generator that yields filenames as they are exported.
         """
 
         media_dir = self.col.media.dir()
