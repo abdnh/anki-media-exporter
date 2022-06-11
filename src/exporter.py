@@ -6,14 +6,14 @@ import os
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generator, List, Optional, Set, Tuple
+from typing import Generator
 
 from anki.collection import Collection, SearchNode
 from anki.decks import DeckId
 from anki.notes import Note
 
 
-def get_note_media(col: Collection, note: Note, field: str | None) -> List[str]:
+def get_note_media(col: Collection, note: Note, field: str | None) -> list[str]:
     "Return a list of used media files in `note`."
     if field:
         flds = note[field]
@@ -29,12 +29,12 @@ class MediaExporter(ABC):
     field: str
 
     @abstractmethod
-    def file_lists(self) -> Generator[List[str], None, None]:
+    def file_lists(self) -> Generator[list[str], None, None]:
         """Return a generator that yields a list of media files for each note that should be imported."""
 
     def export(
-        self, folder: Path | str, exts: Optional[Set] = None
-    ) -> Generator[Tuple[int, List[str]], None, None]:
+        self, folder: Path | str, exts: set | None = None
+    ) -> Generator[tuple[int, list[str]], None, None]:
         """
         Export media files in `self.did` to `folder`,
         including only files that has extensions in `exts` if `exts` is not None.
@@ -63,12 +63,12 @@ class MediaExporter(ABC):
 class NoteMediaExporter(MediaExporter):
     """Exporter for a list of notes."""
 
-    def __init__(self, col: Collection, notes: List[Note], field: Optional[str] = None):
+    def __init__(self, col: Collection, notes: list[Note], field: str | None = None):
         self.col = col
         self.notes = notes
         self.field = field
 
-    def file_lists(self) -> Generator[List[str], None, None]:
+    def file_lists(self) -> Generator[list[str], None, None]:
         "Return a generator that yields a list of media files for each note in `self.notes`"
 
         for note in self.notes:
@@ -78,12 +78,12 @@ class NoteMediaExporter(MediaExporter):
 class DeckMediaExporter(MediaExporter):
     "Exporter for all media in a deck."
 
-    def __init__(self, col: Collection, did: DeckId, field: Optional[str] = None):
+    def __init__(self, col: Collection, did: DeckId, field: str | None = None):
         self.col = col
         self.did = did
         self.field = field
 
-    def file_lists(self) -> Generator[List[str], None, None]:
+    def file_lists(self) -> Generator[list[str], None, None]:
         "Return a generator that yields a list of media files for each note in the deck with the ID `self.did`"
         search_params = [SearchNode(deck=self.col.decks.name(self.did))]
         if self.field:
