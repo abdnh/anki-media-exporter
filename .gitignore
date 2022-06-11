@@ -2,3 +2,5 @@ venv/
 *.ankiaddon
 __pycache__/
 .mypy_cache/
+ankiprofile/
+meta.json
