@@ -4,6 +4,10 @@ The add-on can be accessed from a menu item named "Export Media" under the gears
 
 By default, the add-on exports all media files. You can instead make it export only audio files from the add-on's configuration under *Tools > Add-ons*.
 
+## Download
+
+You can download the add-on from its AnkiWeb page: https://ankiweb.net/shared/info/567329012
+
 ## Credit
 
 The editor icon is adapted from [Bootstrap Icons](https://icons.getbootstrap.com/).
