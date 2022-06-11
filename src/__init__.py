@@ -3,33 +3,44 @@ Initialize the add-on, and adds a menu item under the gears icon in the deck lis
 to export media from a target deck.
 """
 
+from __future__ import annotations
+
 from concurrent.futures import Future
 
-from aqt import editor, gui_hooks, mw
+import aqt
+from anki.decks import DeckId
+from aqt import gui_hooks, mw
+from aqt.editor import Editor
 from aqt.qt import *
 from aqt.utils import tooltip
 
-from .exporter import MediaExporter
+from .exporter import DeckMediaExporter, NoteMediaExporter
 
 ADDON_NAME = "Media Exporter"
+ADDON_DIR = os.path.dirname(__file__)
+AUDIO_EXTS = aqt.editor.audio
+
+
+def get_export_folder() -> str:
+    "Get the export folder from the user."
+    return QFileDialog.getExistingDirectory(
+        mw, caption="Choose the folder where you want to export the files to"
+    )
 
 
 def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
     """Adds a menu item under the gears icon to export a deck's media files."""
 
-    def export_media():
-        folder = QFileDialog.getExistingDirectory(
-            mw, caption="Choose the folder where you want to export the files to"
-        )
-
+    def export_media() -> None:
+        folder = get_export_folder()
         config = mw.addonManager.getConfig(__name__)
-        exts = set(editor.audio) if config.get("audio_only", False) else None
+        exts = set(AUDIO_EXTS) if config.get("audio_only", False) else None
         field = config.get("search_in_field", None)
         want_cancel = False
 
         def export_task() -> int:
-            exporter = MediaExporter(mw.col, did, field)
-            note_count = mw.col.decks.card_count([did], include_subdecks=True)
+            exporter = DeckMediaExporter(mw.col, DeckId(did), field)
+            note_count = mw.col.decks.card_count([DeckId(did)], include_subdecks=True)
             progress_step = min(2500, max(2500, note_count))
             media_i = 0
             for notes_i, (media_i, _) in enumerate(exporter.export(folder, exts)):
@@ -43,7 +54,7 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
                         break
             return media_i
 
-        def update_progress(notes_i: int, note_count: int, media_i: int):
+        def update_progress(notes_i: int, note_count: int, media_i: int) -> None:
             nonlocal want_cancel
             mw.progress.update(
                 label=f"Processed {notes_i} notes and exported {media_i} files",
@@ -52,7 +63,7 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
             )
             want_cancel = mw.progress.want_cancel()
 
-        def on_done(future: Future):
+        def on_done(future: Future) -> None:
             try:
                 count = future.result()
             finally:
@@ -67,6 +78,28 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
     qconnect(action.triggered, export_media)
 
 
+def add_editor_button(buttons: list[str], editor: Editor) -> None:
+    "Add an editor button to export media from the current note."
+
+    def on_clicked(editor: Editor) -> None:
+        config = mw.addonManager.getConfig(__name__)
+        exts = set(AUDIO_EXTS) if config.get("audio_only", False) else None
+        field = config.get("search_in_field", None)
+        folder = get_export_folder()
+        exporter = NoteMediaExporter(mw.col, [editor.note], field)
+        media_tuple = list(exporter.export(folder, exts))[0]
+        tooltip(f"Exported {media_tuple[0]} media files", parent=editor.widget)
+
+    button = editor.addButton(
+        icon=os.path.join(ADDON_DIR, "icons", "editor-icon.svg"),
+        cmd="media_exporter",
+        func=on_clicked,
+        tip="Export Media",
+    )
+    buttons.append(button)
+
+
 gui_hooks.deck_browser_will_show_options_menu.append(
     on_deck_browser_will_show_options_menu
 )
+gui_hooks.editor_did_init_buttons.append(add_editor_button)
