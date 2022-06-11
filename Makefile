@@ -8,6 +8,7 @@ zip: $(PACKAGE_NAME).ankiaddon
 $(PACKAGE_NAME).ankiaddon: src/*
 	rm -f $@
 	rm -rf src/__pycache__
+	rm -rf src/meta.json
 	( cd src/; zip -r ../$@ * )
 
 fix:
