@@ -41,10 +41,11 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
         def export_task() -> int:
             exporter = DeckMediaExporter(mw.col, DeckId(did), field)
             note_count = mw.col.decks.card_count([DeckId(did)], include_subdecks=True)
-            progress_step = min(2500, max(2500, note_count))
+            last_progress = 0.0
             media_i = 0
             for notes_i, (media_i, _) in enumerate(exporter.export(folder, exts)):
-                if notes_i % progress_step == 0:
+                if time.time() - last_progress >= 0.1:
+                    last_progress = time.time()
                     mw.taskman.run_on_main(
                         lambda notes_i=notes_i + 1, media_i=media_i: update_progress(
                             notes_i, note_count, media_i
