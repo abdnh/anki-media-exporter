@@ -27,17 +27,18 @@ class MediaExporter(ABC):
 
     col: Collection
     field: str
+    exts: set | None = None
 
     @abstractmethod
     def file_lists(self) -> Generator[list[str], None, None]:
         """Return a generator that yields a list of media files for each note that should be imported."""
 
     def export(
-        self, folder: Path | str, exts: set | None = None
+        self, folder: Path | str
     ) -> Generator[tuple[int, list[str]], None, None]:
         """
         Export media files in `self.did` to `folder`,
-        including only files that has extensions in `exts` if `exts` is not None.
+        including only files that has extensions in `self.exts` if it's not None.
         Returns a generator that yields the total media files exported so far and filenames as they are exported.
         """
 
@@ -49,7 +50,10 @@ class MediaExporter(ABC):
                 if filename in seen:
                     continue
                 seen.add(filename)
-                if exts is not None and os.path.splitext(filename)[1][1:] not in exts:
+                if (
+                    self.exts is not None
+                    and os.path.splitext(filename)[1][1:] not in self.exts
+                ):
                     continue
                 src_path = os.path.join(media_dir, filename)
                 if not os.path.exists(src_path):
@@ -63,10 +67,17 @@ class MediaExporter(ABC):
 class NoteMediaExporter(MediaExporter):
     """Exporter for a list of notes."""
 
-    def __init__(self, col: Collection, notes: list[Note], field: str | None = None):
+    def __init__(
+        self,
+        col: Collection,
+        notes: list[Note],
+        field: str | None = None,
+        exts: set | None = None,
+    ):
         self.col = col
         self.notes = notes
         self.field = field
+        self.exts = exts
 
     def file_lists(self) -> Generator[list[str], None, None]:
         "Return a generator that yields a list of media files for each note in `self.notes`"
@@ -78,10 +89,17 @@ class NoteMediaExporter(MediaExporter):
 class DeckMediaExporter(MediaExporter):
     "Exporter for all media in a deck."
 
-    def __init__(self, col: Collection, did: DeckId, field: str | None = None):
+    def __init__(
+        self,
+        col: Collection,
+        did: DeckId,
+        field: str | None = None,
+        exts: set | None = None,
+    ):
         self.col = col
         self.did = did
         self.field = field
+        self.exts = exts
 
     def file_lists(self) -> Generator[list[str], None, None]:
         "Return a generator that yields a list of media files for each note in the deck with the ID `self.did`"
