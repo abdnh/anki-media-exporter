@@ -47,6 +47,8 @@ def export_with_progress(
     parent: QWidget, exporter: MediaExporter, note_count: int
 ) -> None:
     folder = get_export_folder(parent)
+    if not folder:
+        return
     want_cancel = False
 
     def export_task() -> int:
@@ -108,6 +110,8 @@ def add_editor_button(buttons: list[str], editor: Editor) -> None:
         field = get_configured_search_field(config)
         exts = get_configured_exts(config)
         folder = get_export_folder(editor.widget)
+        if not folder:
+            return
         exporter = NoteMediaExporter(mw.col, [editor.note], field, exts)
         media_tuple = list(exporter.export(folder))[0]
         tooltip(f"Exported {media_tuple[0]} media files", parent=editor.widget)
