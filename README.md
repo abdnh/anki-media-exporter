@@ -1,6 +1,10 @@
 Anki add-on that allows you to export media files from a chosen deck or note to a folder.
 
-The add-on can be accessed from a menu item named "Export Media" under the gears icon besides each deck's name in the main screen. There is also an editor button to export media from the current note.
+The add-on can be accessed from different locations:
+
+-   From the "Export Media" menu item under the gears icon besides each deck's name in the main screen.
+-   From a button in the editor toolbar.
+-   From the _Notes > Export Media_ browser menu item to export from selected notes.
 
 By default, the add-on exports all media files. You can instead make it export only audio files from the add-on's configuration under _Tools > Add-ons_.
 
