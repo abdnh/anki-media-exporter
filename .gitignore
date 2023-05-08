@@ -1,6 +1,11 @@
-venv/
-*.ankiaddon
 __pycache__/
+venv/
 .mypy_cache/
 ankidata/
-meta.json
+build/
+src/manifest.json
+src/meta.json
+src/forms/
+src/user_files/*/
+src/vendor/
+TODO.md

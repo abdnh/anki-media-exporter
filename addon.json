@@ -1,0 +1,7 @@
+{
+    "name": "Media Exporter",
+    "package": "media_exporter",
+    "homepage": "https://github.com/abdnh/anki-media-exporter",
+    "ankiweb_id": "567329012",
+    "min_point_version": 49
+}

@@ -1,25 +1,22 @@
-.PHONY: all zip clean format mypy pylint fix
-all: zip
+.PHONY: all zip ankiweb fix mypy pylint clean
 
-PACKAGE_NAME := media_exporter
+all: zip ankiweb
 
-zip: $(PACKAGE_NAME).ankiaddon
+zip:
+	python -m ankiscripts.build --type package --qt all --exclude user_files/**/
 
-$(PACKAGE_NAME).ankiaddon: src/*
-	rm -f $@
-	rm -rf src/__pycache__
-	rm -rf src/meta.json
-	( cd src/; zip -r ../$@ * )
+ankiweb:
+	python -m ankiscripts.build --type ankiweb --qt all --exclude user_files/**/
 
 fix:
-	python -m black src
-	python -m isort src
+	python -m black src tests --exclude="forms|vendor"
+	python -m isort src tests
 
 mypy:
-	python -m mypy src
+	python -m mypy src tests
 
 pylint:
-	python -m pylint src
+	python -m pylint src tests
 
 clean:
-	rm -f $(PACKAGE_NAME).ankiaddon
+	rm -rf build/

@@ -1,0 +1,11 @@
+{
+    "type": "object",
+    "properties": {
+        "audio_only": {
+            "type": "boolean"
+        },
+        "search_in_field": {
+            "type": "string"
+        }
+    }
+}
