@@ -1,2 +1,0 @@
-- **audio_only**: Set this to `true` to only export audio files. The default is `false`.
-- **search_in_field**: Use this to limit exported files to a certain field. The default is `""`, which means to export files from all fields.

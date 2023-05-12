@@ -6,7 +6,7 @@ The add-on can be accessed from different locations:
 -   From a button in the editor toolbar.
 -   From the _Notes > Export Media_ browser menu item to export from selected notes.
 
-By default, the add-on exports all media files. You can instead make it export only audio files from the add-on's configuration under _Tools > Add-ons_.
+![The add-on's dialog](images/dialog.png)
 
 ## Download
 
