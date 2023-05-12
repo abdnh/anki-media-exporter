@@ -54,7 +54,6 @@ class MultiSelect(QListWidget):
         check_all_widget.blockSignals(False)
 
     def _on_check_all(self, state: int) -> None:
-        # FIXME: check if this works in Qt5
         check_state = Qt.CheckState(state)
         if check_state == Qt.CheckState.PartiallyChecked:
             return
