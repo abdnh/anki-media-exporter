@@ -1,5 +1,3 @@
-from pathlib import Path
+from ankiutils.consts import get_consts
 
-ADDON_NAME = "Media Exporter"
-ADDON_DIR = Path(__file__).parent
-ADDON_MODULE = ADDON_DIR.name
+consts = get_consts(__name__)

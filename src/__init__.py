@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+
 from anki.decks import DeckId
 from aqt import gui_hooks, mw
 from aqt.editor import Editor
@@ -11,7 +13,9 @@ except ImportError:
 
 from aqt.qt import *
 
-from . import consts
+sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
+
+from .consts import consts
 from .exporter import DeckMediaExporter, NoteMediaExporter
 from .gui.dialog import ExportDialog
 
@@ -41,7 +45,7 @@ def add_editor_button(buttons: list[str], editor: Editor) -> None:
         dialog.exec()
 
     button = editor.addButton(
-        icon=os.path.join(consts.ADDON_DIR, "icons", "editor-icon.svg"),
+        icon=os.path.join(consts.dir, "icons", "editor-icon.svg"),
         cmd="media_exporter",
         func=on_clicked,
         tip="Export Media",

@@ -20,7 +20,7 @@ def get_note_media(col: Collection, note: Note, fields: list[str] | None) -> lis
     flds = "".join(matched_fields)
     files_in_str = getattr(col.media, "files_in_str", None)
     if not files_in_str:
-        files_in_str = col.media.filesInStr
+        files_in_str = col.media.filesInStr  # type: ignore
     return files_in_str(note.mid, flds)
 
 

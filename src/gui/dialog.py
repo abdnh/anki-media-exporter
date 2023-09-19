@@ -5,31 +5,32 @@ import time
 from concurrent.futures import Future
 from typing import List, Optional
 
+import ankiutils.gui.dialog
 import aqt
 import aqt.editor
 from aqt.main import AnkiQt
 from aqt.qt import *
 from aqt.utils import showWarning, tooltip
 
-from .. import consts
+from ..consts import consts
 from ..exporter import MediaExporter
 from .multiselect import MultiSelect
 
 ExporterFactory = Callable[[Optional[List[str]], Optional[set]], MediaExporter]
 
 
-class ExportDialog(QDialog):
+# pylint: disable=too-many-instance-attributes
+class ExportDialog(ankiutils.gui.dialog.Dialog):
     def __init__(
         self, mw: AnkiQt, parent: QWidget, exporter_factory: ExporterFactory
     ) -> None:
-        super().__init__(parent)
         self.mw = mw
         self._parent = parent
         self.exporter_factory = exporter_factory
-        self.setup_ui()
+        super().__init__(consts.module, parent)
 
     def export_folder_profile_key(self) -> str:
-        return f"{consts.ADDON_MODULE}Directory"
+        return f"{consts.module}Directory"
 
     def default_export_folder(self) -> str:
         return self.mw.pm.profile.get(self.export_folder_profile_key(), "")
@@ -38,10 +39,12 @@ class ExportDialog(QDialog):
         self.mw.pm.profile[self.export_folder_profile_key()] = folder
 
     def setup_ui(self) -> None:
-        self.setWindowTitle(consts.ADDON_NAME)
+        super().setup_ui()
+
+        self.setWindowTitle(consts.name)
         self.setMinimumSize(600, 500)
 
-        layout = QGridLayout(self)
+        layout = QGridLayout()
         self.setLayout(layout)
 
         self.folder_lineedit = QLineEdit(self.default_export_folder(), self)
@@ -121,7 +124,7 @@ class ExportDialog(QDialog):
         note_count = len(exporter.notes)
 
         if not folder:
-            showWarning("No folder set", self, title=consts.ADDON_NAME)
+            showWarning("No folder set", self, title=consts.name)
             return
 
         self.accept()
@@ -163,5 +166,5 @@ class ExportDialog(QDialog):
             tooltip(f"Exported {count} media files", parent=self._parent)
 
         self.mw.progress.start(label="Exporting media...", parent=self._parent)
-        self.mw.progress.set_title(consts.ADDON_NAME)
+        self.mw.progress.set_title(consts.name)
         self.mw.taskman.run_in_background(export_task, on_done=on_done)
