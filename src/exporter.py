@@ -1,16 +1,79 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generator
+from typing import Generator, List
 
 from anki.collection import Collection, SearchNode
 from anki.decks import DeckId
 from anki.notes import Note
 from anki.utils import ids2str
+from anki.models import NotetypeDict, TemplateDict
 
+
+def gather_media_from_css(css: str) -> List[str]:
+    # Regular expression taken from the anki repo https://github.com/ankitects/anki/blob/c2b1ab5eb06935e93aea6af09a224a99f4b971f0/rslib/src/text.rs#L151
+    underscored_css_imports_pattern = re.compile(r"""(?xi)
+        (?:@import\s+           # import statement with a bare
+            "(_[^"]*.css)"      # double quoted
+            |                   # or
+            '(_[^']*.css)'      # single quoted css filename
+        )
+        |
+        (?:url\(\s*             # a url function with a
+            "(_[^"]+)"          # double quoted
+            |                   # or
+            '(_[^']+)'          # single quoted
+            |                   # or
+            (_.+)               # unquoted filename
+        \s*\))
+    """)
+
+    media_files = []
+
+    matches = underscored_css_imports_pattern.findall(css)
+    for match in matches:
+        for group in match:
+            if group and group.startswith("_"):
+                media_files.append(group)
+
+    return media_files
+
+def gather_media_from_template_side(template_side: str) -> List[str]:
+    # Regular expression taken from the anki repo https://github.com/ankitects/anki/blob/c2b1ab5eb06935e93aea6af09a224a99f4b971f0/rslib/src/text.rs#L169
+    underscored_references_pattern = re.compile(r"""(?x)
+        \[sound:(_[^]]+)\]  # a filename in an Anki sound tag
+        |
+        "(_[^"]+)"          # a double quoted
+        |
+        '(_[^']+)'          # single quoted string
+        |
+        \b(?:src|data)      # a 'src' or 'data' attribute
+        =
+        (_[^ >]+)           # an unquoted value
+    """)
+
+    media_files = []
+
+    matches = underscored_references_pattern.findall(template_side)
+    for match in matches:
+        for group in match:
+            if group and group.startswith("_"):
+                media_files.append(group)
+
+    return media_files
+
+def gather_media_from_template(template: TemplateDict) -> List[str]:
+    question_template = template['qfmt']
+    answer_template = template['afmt']
+
+    media_files = gather_media_from_template_side(question_template)
+    media_files.extend(gather_media_from_template_side(answer_template))
+
+    return media_files
 
 def get_note_media(col: Collection, note: Note, fields: list[str] | None) -> list[str]:
     if fields is not None:
@@ -23,6 +86,14 @@ def get_note_media(col: Collection, note: Note, fields: list[str] | None) -> lis
         files_in_str = col.media.filesInStr  # type: ignore
     return files_in_str(note.mid, flds)
 
+def get_notetype_media(notetype: NotetypeDict) -> List[str]:
+    css_media = gather_media_from_css(notetype['css'])
+
+    template_media = []
+    for template in notetype['tmpls']:
+        template_media.extend(gather_media_from_template(template))
+
+    return css_media + template_media
 
 class MediaExporter(ABC):
     """Abstract media exporter."""
@@ -47,8 +118,18 @@ class MediaExporter(ABC):
         if self._media_lists:
             yield from self._media_lists
         else:
+            notetypes_in_selection = set()
             for note in self.notes:
+                # Gather notetypes in selected notes without duplicates
+                notetypes_in_selection.add(note.note_type()['name'])
+                
                 media = get_note_media(self.col, note, self.fields)
+                self._media_lists.append(media)
+                yield media
+            
+            for notetype_name in notetypes_in_selection:
+                notetype = self.col.models.byName(notetype_name)
+                media = get_notetype_media(notetype)
                 self._media_lists.append(media)
                 yield media
 
