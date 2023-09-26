@@ -70,7 +70,7 @@ class ExportDialog(ankiutils.gui.dialog.Dialog):
         qconnect(self.image_exts.toggled, self.on_image_exts)
         self.sound_exts = QRadioButton("Sounds", self)
         qconnect(self.sound_exts.toggled, self.on_sound_exts)
-        groupbox_layout = QVBoxLayout(self)
+        groupbox_layout = QVBoxLayout()
         groupbox_layout.addWidget(self.custom_exts)
         groupbox_layout.addWidget(self.image_exts)
         groupbox_layout.addWidget(self.sound_exts)
