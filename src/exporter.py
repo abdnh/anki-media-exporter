@@ -137,7 +137,7 @@ class MediaExporter(ABC):
                 yield media
 
             get_notetype_by_name = getattr(self.col.models, "by_name", None)
-            if get_notetype_by_name:
+            if not get_notetype_by_name:
                 get_notetype_by_name = self.col.models.byName  # type: ignore[attr-defined]
             for notetype_name in notetypes_in_selection:
                 notetype = get_notetype_by_name(notetype_name)
