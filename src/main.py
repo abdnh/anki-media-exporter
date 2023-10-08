@@ -16,6 +16,7 @@ from aqt.qt import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
 
+from .config import config
 from .consts import consts
 from .exporter import DeckMediaExporter, NoteMediaExporter
 from .gui.dialog import ExportDialog
@@ -26,7 +27,9 @@ def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
         def exporter_factory(
             fields: list[str] | None = None, exts: set | None = None
         ) -> DeckMediaExporter:
-            return DeckMediaExporter(mw.col, DeckId(did), fields, exts)
+            return DeckMediaExporter(
+                mw.col, DeckId(did), fields, exts, config["organize_into_subfolders"]
+            )
 
         dialog = ExportDialog(mw, mw, exporter_factory)
         dialog.exec()
