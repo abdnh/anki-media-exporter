@@ -164,7 +164,7 @@ class MediaExporter(ABC):
         self, folder: Path | str
     ) -> Generator[tuple[int, list[str]], None, None]:
         """
-        Export media files in `self.did` to `folder`,
+        Export media files in `self.notes` to `folder`,
         including only files that has extensions in `self.exts` if it's not None.
         Returns a generator that yields the total media files exported so far and filenames as they are exported.
         """
