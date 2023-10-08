@@ -1,0 +1,20 @@
+{
+    "properties": {
+        "included_extensions": {
+            "items": {
+                "type": "string"
+            },
+            "type": "array"
+        },
+        "included_fields": {
+            "items": {
+                "type": "string"
+            },
+            "type": "array"
+        },
+        "media_type": {
+            "type": "string"
+        }
+    },
+    "type": "object"
+}

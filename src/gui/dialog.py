@@ -12,6 +12,7 @@ from aqt.main import AnkiQt
 from aqt.qt import *
 from aqt.utils import showWarning, tooltip
 
+from ..config import config
 from ..consts import consts
 from ..exporter import MediaExporter
 from .multiselect import MultiSelect
@@ -40,6 +41,7 @@ class ExportDialog(ankiutils.gui.dialog.Dialog):
 
     def setup_ui(self) -> None:
         super().setup_ui()
+        qconnect(self.finished, self.save_preferences)
 
         self.setWindowTitle(consts.name)
         self.setMinimumSize(600, 500)
@@ -86,6 +88,38 @@ class ExportDialog(ankiutils.gui.dialog.Dialog):
         export_button = QPushButton("Export", self)
         qconnect(export_button.clicked, self.on_export)
         layout.addWidget(export_button, 3, 2, 1, 3)
+        self.restore_preferences()
+
+    def restore_preferences(self) -> None:
+        media_type = config["media_type"]
+        if media_type == "images":
+            self.image_exts.setChecked(True)
+        elif media_type == "sounds":
+            self.sound_exts.setChecked(True)
+        else:
+            for i in range(1, self.ext_selector.count()):
+                checked = (
+                    self.ext_selector.label(i).lower() in config["included_extensions"]
+                )
+                self.ext_selector.set_checked(i, checked)
+        for i in range(1, self.field_selector.count()):
+            checked = self.field_selector.label(i).lower() in config["included_fields"]
+            self.field_selector.set_checked(i, checked)
+
+    def save_preferences(self) -> None:
+        media_type = "custom"
+        if self.image_exts.isChecked():
+            media_type = "images"
+        elif self.sound_exts.isChecked():
+            media_type = "sounds"
+        config["media_type"] = media_type
+        config["included_fields"] = [
+            field.lower() for field in self.field_selector.selected_labels()
+        ]
+        if media_type == "custom":
+            config["included_extensions"] = [
+                field.lower() for field in self.ext_selector.selected_labels()
+            ]
 
     def on_folder_button(self) -> None:
         default_folder = self.default_export_folder()
