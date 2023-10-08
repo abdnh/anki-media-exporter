@@ -121,6 +121,9 @@ class MediaExporter(ABC):
     def notes(self) -> list[Note]:
         return self._notes
 
+    def folder_for_note(self, base_folder: Path, note: Note) -> Path:
+        return base_folder
+
     @property
     def media_lists(self) -> Generator[list[str], None, None]:
         """Return a generator that yields a list of media files for each note."""
@@ -161,18 +164,24 @@ class MediaExporter(ABC):
         return fields
 
     def export(
-        self, folder: Path | str
+        self, base_folder: Path | str
     ) -> Generator[tuple[int, list[str]], None, None]:
         """
-        Export media files in `self.notes` to `folder`,
+        Export media files in `self.notes` to `base_folder`,
         including only files that has extensions in `self.exts` if it's not None.
         Returns a generator that yields the total media files exported so far and filenames as they are exported.
         """
-
+        base_folder = Path(base_folder)
         media_dir = self.col.media.dir()
         seen = set()
         exported = set()
-        for filenames in self.media_lists:
+        for i, filenames in enumerate(self.media_lists):
+            folder = (
+                self.folder_for_note(base_folder, self.notes[i])
+                if len(self.notes) > i
+                else base_folder
+            )
+            folder.mkdir(exist_ok=True, parents=True)
             for filename in filenames:
                 if filename in seen:
                     continue
@@ -209,6 +218,7 @@ class NoteMediaExporter(MediaExporter):
         return self._notes
 
 
+# pylint: disable=too-many-arguments
 class DeckMediaExporter(MediaExporter):
     "Exporter for all media in a deck."
 
@@ -218,9 +228,11 @@ class DeckMediaExporter(MediaExporter):
         did: DeckId,
         fields: list[str] | None = None,
         exts: set | None = None,
+        organize_into_subfolders: bool = False,
     ):
         super().__init__(col, fields, exts)
         self.did = did
+        self._organize_into_subfolders = organize_into_subfolders
 
     @property
     def notes(self) -> list[Note]:
@@ -236,3 +248,13 @@ class DeckMediaExporter(MediaExporter):
         for nid in self.col.find_notes(search):
             self._notes.append(self.col.get_note(nid))
         return self._notes
+
+    def folder_for_note(self, base_folder: Path, note: Note) -> Path:
+        if not self._organize_into_subfolders:
+            return base_folder
+        did = self.col.db.scalar(
+            "select did from cards where id = ?", note.card_ids()[0]
+        )
+        deck_name = self.col.decks.name(did).replace("::", "__")
+
+        return base_folder / Path(deck_name)
