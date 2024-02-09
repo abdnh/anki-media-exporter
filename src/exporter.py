@@ -238,6 +238,8 @@ class DeckMediaExporter(MediaExporter):
     def notes(self) -> list[Note]:
         if self._notes:
             return self._notes
+        if self.fields is not None and len(self.fields) == 0:
+            return []
         search_terms = [SearchNode(deck=self.col.decks.name(self.did))]
         if self.fields is not None:
             or_terms = []
