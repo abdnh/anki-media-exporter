@@ -18,8 +18,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
 
 from .config import config
 from .consts import consts
+from .errors import setup_error_handler
 from .exporter import DeckMediaExporter, NoteMediaExporter
-from .gui.dialog import ExportDialog
+from .gui.export_dialog import ExportDialog
 
 
 def on_deck_browser_will_show_options_menu(menu: QMenu, did: int) -> None:
@@ -79,3 +80,4 @@ gui_hooks.deck_browser_will_show_options_menu.append(
 )
 gui_hooks.editor_did_init_buttons.append(add_editor_button)
 gui_hooks.browser_menus_did_init.append(add_browser_menu_item)
+setup_error_handler()

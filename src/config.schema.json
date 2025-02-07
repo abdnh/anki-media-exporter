@@ -17,6 +17,9 @@
         },
         "organize_into_subfolders": {
             "type": "boolean"
+        },
+        "report_errors": {
+            "type": "boolean"
         }
     },
     "type": "object"

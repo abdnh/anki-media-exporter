@@ -1,1 +1,2 @@
-ankiutils @ git+https://github.com/abdnh/ankiutils@b5c5dfd2a16446781cc2de06fdbd019cfa733c94
+ankiutils @ git+https://github.com/abdnh/ankiutils@ab62ffc7cf5b433b98b6907df03a270230b618f9
+sentry-sdk

@@ -2,3 +2,4 @@
 -   `included_fields`: Fields included last time you used the add-on when `media_type` is `custom`.
 -   `media_type`: Media type chosen (sound, image, custom) last time.
 -   `organize_into_subfolders`: Organize media into subfolders corresponding to each subdeck when exporting a deck.
+-   `report_errors`: Report add-on errors automatically.

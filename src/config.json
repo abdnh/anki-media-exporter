@@ -2,5 +2,6 @@
     "included_extensions": [],
     "included_fields": [],
     "media_type": "custom",
-    "organize_into_subfolders": false
+    "organize_into_subfolders": false,
+    "report_errors": true
 }
